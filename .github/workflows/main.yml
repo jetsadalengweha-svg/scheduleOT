@@ -17,5 +17,5 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run x.py
-        run: python x.py
+      - name: Run y.py
+        run: python y.py
