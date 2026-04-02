@@ -2,8 +2,8 @@ import pandas as pd
 
 # เอา ID จาก URL ของ Google Sheet
 # https://docs.google.com/spreadsheets/d/xxxxxxx/edit
-sheet_id = "xxxxxxx"
-sheet_name = "Sheet2"  # ชื่อชีทที่สอง
+sheet_id = "1ziUEgviiyYNZgOJ8UEr_iqnAKAo4FzCtoQJVwnzhsVo"
+sheet_name = "STOCK"  # ชื่อชีทที่สอง
 
 url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 
