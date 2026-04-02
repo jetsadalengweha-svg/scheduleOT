@@ -3,6 +3,7 @@ name: Daily Noon Job
 on:
   schedule:
     - cron: '35 5 * * *'  # 12:35 น. ไทย
+  workflow_dispatch:
 
 jobs:
   run-script:
