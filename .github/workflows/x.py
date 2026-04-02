@@ -11,8 +11,7 @@ client = gspread.authorize(creds)
 
 # เปิด Google Sheet ด้วย ID จาก URL
 # https://docs.google.com/spreadsheets/d/xxxxxxx/edit
-sheet = client.open_by_key("1ziUEgviiyYNZgOJ8UEr_iqnAKAo4FzCtoQJVwnzhsVo").get_worksheet(1)
-
+sheet = client.open_by_key("1ziUEgviiyYNZgOJ8UEr_iqnAKAo4FzCtoQJVwnzhsVo").get_worksheet("STOCK")
 # ดึงข้อมูลทั้งหมด
 data = sheet.get_all_records()
 
