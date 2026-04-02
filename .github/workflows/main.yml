@@ -1,0 +1,21 @@
+name: Daily Noon Job
+
+on:
+  schedule:
+    - cron: '35 5 * * *'  # 12:35 น. ไทย
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Run x.py
+        run: python x.py
