@@ -20,8 +20,8 @@ jobs:
       - name: Install dependencies
         run: pip install pandas gspread google-auth
 
-      - name: Run y.py
-        run: python y.py
+      - name: Run ot.py
+        run: python ot.py
 
       - name: Upload output.txt
         uses: actions/upload-artifact@v4
