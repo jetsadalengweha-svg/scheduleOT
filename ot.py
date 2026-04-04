@@ -7,7 +7,10 @@ import os
 from pathlib import Path
 
 # Load sensitive data from environment variables
-SPREADSHEET_ID = os.getenv('SPREADSHEET_ID', '107ETlafnwDzyn9DcVxGpJ77UzULnuWPms3L2F6VR1cw')
+SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
+if not SPREADSHEET_ID:
+    raise ValueError("Environment variable 'SPREADSHEET_ID' is not set. Please set it before running this script.")
+
 CONTEXT = ssl._create_unverified_context()
 
 # Configuration for sheet mappings
@@ -18,7 +21,12 @@ SHEET_CONFIGS = [
 ]
 
 def download_csv_from_sheet(sheet_name, output_file):
-    """Download CSV data from Google Sheets and save to file.\n    \n    Args:\n        sheet_name (str): Name of the sheet in the Google Spreadsheet\n        output_file (str): Path to save the CSV file\n        \n    Returns:\n        bool: True if successful, False otherwise\n    """
+    """Download CSV data from Google Sheets and save to file.
+    
+    Args:
+        sheet_name (str): Name of the sheet in the Google Spreadsheet
+        output_file (str): Path to save the CSV file
+    """
     try:
         url = f'https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
         response = urllib.request.urlopen(url, context=CONTEXT)
@@ -53,7 +61,13 @@ def download_csv_from_sheet(sheet_name, output_file):
         return False
 
 def process_matching(filename, filename2, output_filename):
-    """Match data between two CSV files based on DateJob and Job columns.\n    \n    Args:\n        filename (str): Path to first CSV file\n        filename2 (str): Path to second CSV file\n        output_filename (str): Path to save matching results\n        \n    Returns:\n        bool: True if successful, False otherwise\n    """
+    """Match data between two CSV files based on DateJob and Job columns.
+    
+    Args:
+        filename (str): Path to first CSV file
+        filename2 (str): Path to second CSV file
+        output_filename (str): Path to save the matched results
+    """
     try:
         # Check if files exist
         if not Path(filename).exists() or not Path(filename2).exists():
@@ -92,8 +106,7 @@ def process_matching(filename, filename2, output_filename):
         conn.commit()
         
         # Perform matching query
-        query = '''SELECT s1.DateJob, s1.Name, s1.Job, s2.Job, s2.Name \n                   FROM sheet1 as s1 \n                   INNER JOIN sheet2 as s2 \n                   ON s1.DateJob = s2.DateJob AND s1.Job = s2.Job \n                   ORDER BY s1.DateJob ASC'''  
-        
+        query = '''SELECT s1.DateJob, s1.Name, s1.Job, s2.Job, s2.Name\n                   FROM sheet1 as s1\n                   INNER JOIN sheet2 as s2\n                   ON s1.DateJob = s2.DateJob AND s1.Job = s2.Job'''        
         cursor.execute(query)
         results = cursor.fetchall()
         
@@ -158,8 +171,7 @@ def main():
         # Download all sheets
         download_all_sheets()
         
-        print("
-" + "=" * 50)
+        print("\n" + "=" * 50)
         print("Starting data matching process")
         print("=" * 50 + "\n")
         
