@@ -29,9 +29,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: output-file
-          path: P.csv
-          name: output-file2
-          path: O.csv
-          name: output-file3
-          path: H.csv
+          path: P.csv H.csv O.csv
 
