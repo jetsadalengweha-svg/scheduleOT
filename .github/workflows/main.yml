@@ -24,6 +24,18 @@ jobs:
         env:
           SPREADSHEET_ID_PRODUCTEXPIRED: ${{ secrets.SPREADSHEET_ID_PRODUCTEXPIRED}}
         run: python y.py
-
+        
+      - name: Send email with attachment
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.mail.yahoo.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Daily OT Output - ${{ github.run_number }}"
+          to: petcharatboonsom@gmail.com
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: "Please find attached the daily OT output files: P.csv, H.csv, O.csv"
+          attachments: ExpiredCSV.csv
   
 
