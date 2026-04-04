@@ -1,8 +1,8 @@
-name: Daily Noon Job
+name: Daily Expired Product Job
 
 on:
   schedule:
-    - cron: '00 0 * * *'  # 12:35 น. ไทย
+    - cron: '00 0 * * *'  # 7:00 น. ไทย
   workflow_dispatch:
 
 jobs:
@@ -20,17 +20,10 @@ jobs:
       - name: Install dependencies
         run: pip install pandas gspread google-auth
 
-      - name: Run ot.py
+      - name: Run y.py
         env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-        run: python ot.py
+          SPREADSHEET_ID_PRODUCTEXPIRED: ${{ secrets.SPREADSHEET_ID_PRODUCTEXPIRED}}
+        run: python y.py
 
-      - name: Upload output.txt
-        uses: actions/upload-artifact@v4
-        with:
-          name: output-file
-          path: |
-               P.csv
-               O.csv
-               H.csv 
+  
 
