@@ -118,7 +118,7 @@ def process_matching(filename, filename2, output_filename):
                 else:
                     f3.write(f'{row[0]},{row[1]},,{row[2]},,{row[3]},{row[4]}\n')
         pd = f3
-        df.to_csv("output.txt", index=False, encoding="utf-8")
+        pd.to_csv("output.txt", index=False, encoding="utf-8")
         conn.close()
         print(f"Successfully matched data and saved to {output_filename}")
         return True
