@@ -1,4 +1,5 @@
 import csv
+import pandas
 import ssl
 import urllib.error
 import urllib.request
@@ -79,10 +80,8 @@ def process_matching(filename, filename2, output_filename):
         cursor = conn.cursor()
         
         # Create tables
-        cursor.execute('''CREATE TABLE sheet1 \
-                         (DateJob TEXT NOT NULL, Name TEXT NOT NULL, Job TEXT NOT NULL)''')
-        cursor.execute('''CREATE TABLE sheet2 \
-                         (DateJob TEXT NOT NULL, Name TEXT NOT NULL, Job TEXT NOT NULL)''')
+        cursor.execute('''CREATE TABLE sheet1 (DateJob TEXT NOT NULL, Name TEXT NOT NULL, Job TEXT NOT NULL)''')
+        cursor.execute('''CREATE TABLE sheet2 (DateJob TEXT NOT NULL, Name TEXT NOT NULL, Job TEXT NOT NULL)''')
         
         # Read and insert data from first file
         with open(filename, 'r') as f:
@@ -95,8 +94,8 @@ def process_matching(filename, filename2, output_filename):
                     )
         
         # Read and insert data from second file
-        with open(filename2, 'r') as f:
-            reader = csv.reader(f)
+        with open(filename2, 'r') as f2:
+            reader = csv.reader(f2)
             for row in reader:
                 if len(row) >= 3:
                     cursor.execute(
@@ -107,17 +106,17 @@ def process_matching(filename, filename2, output_filename):
         conn.commit()
         
         # Perform matching query
-        query = '''SELECT s1.DateJob, s1.Name, s1.Job, s2.Job, s2.Name\n                   FROM sheet1 as s1\n                   INNER JOIN sheet2 as s2\n                   ON s1.DateJob = s2.DateJob AND s1.Job = s2.Job'''        
+        query = '''SELECT s1.DateJob, s1.Name, s1.Job, s2.Job, s2.Name  FROM sheet1 as s1  INNER JOIN sheet2 as s2  ON s1.DateJob = s2.DateJob AND s1.Job = s2.Job'''        
         cursor.execute(query)
         results = cursor.fetchall()
         
         # Write results to output file
-        with open(output_filename, 'w', newline='') as f:
+        with open(output_filename, 'w', newline='') as f3:
             for row in results:
                 if row[1] == row[4]:
-                    f.write(f'{row[0]},{row[1]},,{row[2]},,{row[3]},\n')
+                    f3.write(f'{row[0]},{row[1]},,{row[2]},,{row[3]},\n')
                 else:
-                    f.write(f'{row[0]},{row[1]},,{row[2]},,{row[3]},{row[4]}\n')
+                    f3.write(f'{row[0]},{row[1]},,{row[2]},,{row[3]},{row[4]}\n')
         
         conn.close()
         print(f"Successfully matched data and saved to {output_filename}")
