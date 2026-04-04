@@ -34,7 +34,7 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Daily OT Output - ${{ github.run_number }}"
-          to: info@gmail.com
+          to: petcharatboonsom@gmail.com
           from: ${{ secrets.MAIL_USERNAME }}
           body: "Please find attached the daily OT output files: P.csv, H.csv, O.csv"
           attachments: output-files.zip
