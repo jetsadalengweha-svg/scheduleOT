@@ -19,7 +19,10 @@ env/
 venv/
 ENV/
 
-# Project files
-*.csv
+# Database files
 *.db
 *.sqlite
+
+# Exclude intermediate files only
+*O.csv
+*F.csv
