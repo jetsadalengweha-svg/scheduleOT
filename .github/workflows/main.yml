@@ -29,4 +29,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: output-file
-          path: output.txt
+          path: P.csv
+          path: O.csv
+          path: H.csv
+
