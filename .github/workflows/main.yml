@@ -2,7 +2,7 @@ name: Daily Noon Job
 
 on:
   schedule:
-    - cron: '53 8 * * *'  # 12:35 น. ไทย
+    - cron: '00 0 * * *'  # 12:35 น. ไทย
   workflow_dispatch:
 
 jobs:
