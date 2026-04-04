@@ -61,7 +61,8 @@ def processmatching(filename, filename2, outputfilename):
                        f.write ('%s,%s,%s,%s,%s,%s,%s,%s\n' % (row[0], row[1],'','', row[2],'', row[3], row[4]) )
        f.close()    
        #find way to creat file
-       f.to_csv(outputfilename, index=False, encoding="utf-8")
+       df= pd.read_csv(f)
+       df.to_csv(outputfilename, index=False, encoding="utf-8")
        conn.close
        print("Done")
 
