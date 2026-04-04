@@ -1,122 +1,182 @@
 import csv
 import ssl
+import urllib.error
 import urllib.request
 import sqlite3
+import os
+from pathlib import Path
+
+# Load sensitive data from environment variables
+SPREADSHEET_ID = os.getenv('SPREADSHEET_ID', '107ETlafnwDzyn9DcVxGpJ77UzULnuWPms3L2F6VR1cw')
+CONTEXT = ssl._create_unverified_context()
+
+# Configuration for sheet mappings
+SHEET_CONFIGS = [
+    {'sheet_name': 'tblOrigin', 'origin_file': 'pharmO.csv', 'final_file': 'pharmF.csv', 'output': 'P.csv', 'label': 'Pharmacy'},
+    {'sheet_name': 'tblOO', 'origin_file': 'officerO.csv', 'final_file': 'officerF.csv', 'output': 'O.csv', 'label': 'Officer'},
+    {'sheet_name': 'tblHO', 'origin_file': 'helperO.csv', 'final_file': 'helperF.csv', 'output': 'H.csv', 'label': 'Helper'},
+]
+
+def download_csv_from_sheet(sheet_name, output_file):
+    """Download CSV data from Google Sheets and save to file.\n    \n    Args:\n        sheet_name (str): Name of the sheet in the Google Spreadsheet\n        output_file (str): Path to save the CSV file\n        \n    Returns:\n        bool: True if successful, False otherwise\n    """
+    try:
+        url = f'https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+        response = urllib.request.urlopen(url, context=CONTEXT)
+        data = response.read().decode('utf-8')
+        rows = list(csv.reader(data.splitlines()))
+        
+        if len(rows) < 2:
+            print(f"Warning: No data found in sheet {sheet_name}")
+            return False
+            
+        header = rows[0]
+        data_rows = rows[1:]
+        
+        with open(output_file, 'w', newline='') as f:
+            for row in data_rows:
+                if len(row) > 1:
+                    name = row[1]
+                    for i in range(4, len(header)):
+                        label = header[i]
+                        value = row[i]
+                        if value.strip():
+                            f.write(f'{label},{name},{value.lower()}\n')
+        
+        print(f"Successfully downloaded {sheet_name} to {output_file}")
+        return True
+        
+    except urllib.error.URLError as e:
+        print(f"Error downloading {sheet_name}: {e}")
+        return False
+    except Exception as e:
+        print(f"Unexpected error in download_csv_from_sheet: {e}")
+        return False
+
+def process_matching(filename, filename2, output_filename):
+    """Match data between two CSV files based on DateJob and Job columns.\n    \n    Args:\n        filename (str): Path to first CSV file\n        filename2 (str): Path to second CSV file\n        output_filename (str): Path to save matching results\n        \n    Returns:\n        bool: True if successful, False otherwise\n    """
+    try:
+        # Check if files exist
+        if not Path(filename).exists() or not Path(filename2).exists():
+            print(f"Error: Input files not found")
+            return False
+        
+        conn = sqlite3.connect(':memory:')
+        cursor = conn.cursor()
+        
+        # Create tables
+        cursor.execute('''CREATE TABLE sheet1 \
+                         (DateJob TEXT NOT NULL, Name TEXT NOT NULL, Job TEXT NOT NULL)''')
+        cursor.execute('''CREATE TABLE sheet2 \
+                         (DateJob TEXT NOT NULL, Name TEXT NOT NULL, Job TEXT NOT NULL)''')
+        
+        # Read and insert data from first file
+        with open(filename, 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if len(row) >= 3:
+                    cursor.execute(
+                        'INSERT INTO sheet1 (DateJob, Name, Job) VALUES (?, ?, ?)',
+                        (row[0], row[1], row[2])
+                    )
+        
+        # Read and insert data from second file
+        with open(filename2, 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if len(row) >= 3:
+                    cursor.execute(
+                        'INSERT INTO sheet2 (DateJob, Name, Job) VALUES (?, ?, ?)',
+                        (row[0], row[1], row[2])
+                    )
+        
+        conn.commit()
+        
+        # Perform matching query
+        query = '''SELECT s1.DateJob, s1.Name, s1.Job, s2.Job, s2.Name \n                   FROM sheet1 as s1 \n                   INNER JOIN sheet2 as s2 \n                   ON s1.DateJob = s2.DateJob AND s1.Job = s2.Job \n                   ORDER BY s1.DateJob ASC'''  
+        
+        cursor.execute(query)
+        results = cursor.fetchall()
+        
+        # Write results to output file
+        with open(output_filename, 'w', newline='') as f:
+            for row in results:
+                if row[1] == row[4]:
+                    f.write(f'{row[0]},{row[1]},,{row[2]},,{row[3]},\n')
+                else:
+                    f.write(f'{row[0]},{row[1]},,{row[2]},,{row[3]},{row[4]}\n')
+        
+        conn.close()
+        print(f"Successfully matched data and saved to {output_filename}")
+        return True
+        
+    except sqlite3.Error as e:
+        print(f"Database error in process_matching: {e}")
+        return False
+    except Exception as e:
+        print(f"Error in process_matching: {e}")
+        return False
+
+def download_all_sheets():
+    """Download all configured sheets from Google Spreadsheet."""
+    print("Starting download of all sheets...")
+    
+    for config in SHEET_CONFIGS:
+        sheet_name = config['sheet_name']
+        origin_file = config['origin_file']
+        final_file = config['final_file']
+        
+        # Download origin sheet
+        download_csv_from_sheet(sheet_name, origin_file)
+        
+        # Download final sheet (assuming pattern)
+        final_sheet = sheet_name.replace('O', 'F')
+        download_csv_from_sheet(final_sheet, final_file)
+
+def process_all_matches():
+    """Process matching for all configured sheet pairs."""
+    print("Starting matching process...")
+    
+    for config in SHEET_CONFIGS:
+        origin_file = config['origin_file']
+        final_file = config['final_file']
+        output = config['output']
+        label = config['label']
+        
+        print(f"Processing {label}...")
+        if process_matching(origin_file, final_file, output):
+            print(f"{label} processing completed successfully")
+        else:
+            print(f"{label} processing failed")
+
+def main():
+    """Main entry point for the OT scheduling script."""
+    print("=" * 50)
+    print("OT Scheduling Script Started")
+    print("=" * 50)
+    
+    try:
+        # Download all sheets
+        download_all_sheets()
+        
+        print("
+" + "=" * 50)
+        print("Starting data matching process")
+        print("=" * 50 + "\n")
+        
+        # Process all matches
+        process_all_matches()
+        
+        print("\n" + "=" * 50)
+        print("OT Scheduling Script Completed Successfully")
+        print("=" * 50)
+        
+    except Exception as e:
+        print(f"Fatal error in main: {e}")
+        return False
+    
+    return True
 
 
-
-spreadsheet_id = '107ETlafnwDzyn9DcVxGpJ77UzULnuWPms3L2F6VR1cw'
-context = ssl._create_unverified_context()
-
-def processmatching(filename, filename2, outputfilename):
-       with open(filename, "r") as f:
-               text = f.read()
-       with open(filename2, "r") as f2:
-               text2 = f2.read()
-
-       conn = sqlite3.connect(':memory:')
-       cursor = conn.cursor()
-       cursor.execute('CREATE TABLE sheet1 ( DateJob TEXT NOT NULL , Name TEXT NOT NULL, Job TEXT NOT NULL )')
-       data = []
-       holder = ""
-       for row in text:
-               if row == "," or row =="\n":
-                       data.append(holder)
-                       holder = ""
-               else:
-                       holder = holder + row
-
-       for i in range(len(data)):
-               if not i % 3:
-                       sqlstatement = "INSERT INTO sheet1 ( DateJob, Name, Job )  VALUES ('" +  data[i] + "', '" + data[i+1] + "', '" + data[i+2] + "')"
-                       cursor.execute(sqlstatement)
-                       conn.commit()
-
-       cursor.execute('CREATE TABLE sheet2 ( DateJob TEXT NOT NULL , Name TEXT NOT NULL, Job TEXT NOT NULL )')
-       data2 = []
-       holder2 = ""
-       for row2 in text2:
-               if row2 == "," or row2 =="\n":
-                       data2.append(holder2)
-                       holder2 = ""
-               else:
-                       holder2 = holder2 + row2
-
-       for i2 in range(len(data2)):
-               if not i2 % 3:
-                       sqlstatement2 = "INSERT INTO sheet2 ( DateJob, Name, Job )  VALUES ('" +  data2[i2] + "', '" + data2[i2+1] + "', '" + data2[i2+2] + "')"
-                       cursor.execute(sqlstatement2)
-                       conn.commit()
-
-       sqlstatementF = "SELECT s1.DateJob, s1.Name, s1.Job, s2.Job, s2.Name FROM sheet1 as s1 inner join sheet2 as s2 on s1.DateJob = s2.DateJob and s1.Job = s2.Job ORDER BY s1.DateJob ASC"
-       cursor.execute( sqlstatementF )
-       results = cursor.fetchall()
-       
-       f = open( outputfilename, 'w')
-       for row in results:
-               if row[1] == row[4]:
-                       f.write ('%s,%s,%s,%s,%s,%s,%s,%s\n' % (row[0], row[1],'','', row[2],'', row[3], '') )
-               else:
-                       f.write ('%s,%s,%s,%s,%s,%s,%s,%s\n' % (row[0], row[1],'','', row[2],'', row[3], row[4]) )
-       f.close()      
-       conn.close
-       print("Done")
-
-def datainput_cvs_format(url,csvfile):
-       response = urllib.request.urlopen(url, context=context)
-       data = response.read().decode('utf-8')
-       rows = list(csv.reader(data.splitlines()))
-       header = rows[0]
-       data_rows = rows[1:]
-       f = open(csvfile, 'w' )
-       for row in data_rows:
-           name = row[1]
-           for i in range(4, len(header)):
-               label = header[i]
-               value = row[i]
-               if value.strip()  != "":          
-                   f.write ( '%s,%s,%s\n' % (label, name, value.lower()) )
-       f.close()
-       
-
-def runPharmOT():
-       sheet_name = 'tblOrigin'
-       url = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet={}'.format(spreadsheet_id, sheet_name)
-       datainput_cvs_format(url,'pharmO.csv')
-       
-def runPharmFOT():
-       sheet_name = 'tblFinal'
-       url = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet={}'.format(spreadsheet_id, sheet_name)
-       datainput_cvs_format(url,'pharmF.csv')
-       
-def runOfficerOT():
-       sheet_name = 'tblOO'
-       url = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet={}'.format(spreadsheet_id, sheet_name)
-       datainput_cvs_format(url,'officerO.csv')
-       
-def runOfficerFOT():
-       sheet_name = 'tblOF'
-       url = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet={}'.format(spreadsheet_id, sheet_name)
-       datainput_cvs_format(url,'officerF.csv')
-       
-def runHelperOT():
-       sheet_name = 'tblHO'
-       url = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet={}'.format(spreadsheet_id, sheet_name)
-       datainput_cvs_format(url,'helperO.csv')
-       
-def runHelperFOT():
-       sheet_name = 'tblHF'
-       url = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet={}'.format(spreadsheet_id, sheet_name)
-       datainput_cvs_format(url,'helperF.csv')
-       
-runPharmOT()
-runPharmFOT()
-runOfficerOT()
-runOfficerFOT()
-runHelperOT()
-runHelperFOT()
-print("Done")
-processmatching("pharmO.csv", "pharmF.csv", "P.csv")
-processmatching("officerO.csv", "officerF.csv", "O.csv")
-processmatching("helperO.csv", "helperF.csv", "H.csv")
-print("Done Processing")
+if __name__ == "__main__":
+    success = main()
+    exit(0 if success else 1)
