@@ -3,10 +3,10 @@ import ssl
 import urllib.request
 import sqlite3
 import pandas as pd
+import os
 
-
-
-spreadsheet_id = '107ETlafnwDzyn9DcVxGpJ77UzULnuWPms3L2F6VR1cw'
+spreadsheet_id = os.environ.get('SPREADSHEET_ID')
+#spreadsheet_id = '107ETlafnwDzyn9DcVxGpJ77UzULnuWPms3L2F6VR1cw'
 context = ssl._create_unverified_context()
 
 def processmatching(filename, filename2, outputfilename):
