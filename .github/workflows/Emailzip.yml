@@ -1,0 +1,49 @@
+name: Daily Noon Job
+on:
+  schedule:
+    - cron: '53 8 * * *'
+  workflow_dispatch:
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas gspread google-auth
+
+      - name: Run ot.py
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        run: python ot.py
+
+      - name: Zip output files
+        run: zip output-files.zip P.csv H.csv O.csv
+
+      - name: Send email with attachment
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Daily OT Output - ${{ github.run_number }}"
+          to: info@gmail.com
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: "Please find attached the daily OT output files: P.csv, H.csv, O.csv"
+          attachments: output-files.zip
+
+      - name: Upload output files
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-files
+          path: |
+            P.csv
+            H.csv
+            O.csv
