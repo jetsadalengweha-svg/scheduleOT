@@ -7,7 +7,8 @@ import os
 from pathlib import Path
 
 # Load sensitive data from environment variables
-SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
+SPREADSHEET_ID = "107ETlafnwDzyn9DcVxGpJ77UzULnuWPms3L2F6VR1cw" #os.getenv('SPREADSHEET_ID')
+
 if not SPREADSHEET_ID:
     raise ValueError("Environment variable 'SPREADSHEET_ID' is not set. Please set it before running this script.")
 
