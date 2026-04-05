@@ -2,7 +2,7 @@ name: Daily Expired Product Job
 
 on:
   schedule:
-    - cron: '00 0 * * *'  # 7:00 น. ไทย
+    - cron1: '00 0 * * *'  # 7:00 น. ไทย
   workflow_dispatch:
 
 jobs:
