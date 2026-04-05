@@ -9,7 +9,7 @@ spreadsheet_id = os.environ.get('SPREADSHEET_ID_PRODUCTEXPIRED')
 context = ssl._create_unverified_context()
 # เอา ID จาก URL ของ Google Sheet
 SHEET_NAME = "ExpiredDrug"  # ชื่อชีทที่สอง
-SHEET_URL = "https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet={}'.format(spreadsheet_id, SHEET_NAME)
+SHEET_URL = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet={}'.format(spreadsheet_id, SHEET_NAME)
 # ====== ตั้งค่า ======
 # วาง URL ของ Google Sheet ที่นี่ (ลิงค์ปกติที่ได้จากการแชร์)
 OUTPUT_FILE = "result.csv"
