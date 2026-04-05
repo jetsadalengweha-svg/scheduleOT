@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from io import StringIO
 import os
+import ssl
 
 spreadsheet_id = os.environ.get('SPREADSHEET_ID_PRODUCTEXPIRED')
 context = ssl._create_unverified_context()
