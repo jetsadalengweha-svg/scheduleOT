@@ -35,7 +35,7 @@ jobs:
           subject: "Daily OT Output - ${{ github.run_number }}"
           to: petcharatboonsom@gmail.com
           from: ${{ secrets.MAIL_USERNAME }}
-          body: "Please find attached the daily OT output files: P.csv, H.csv, O.csv"
-          attachments: ExpiredCSV.csv
+          body: "Please find attached the daily Expired output files"
+          attachments: result.csv
   
 
