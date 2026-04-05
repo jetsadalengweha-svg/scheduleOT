@@ -99,10 +99,21 @@ for i, row in enumerate(data_rows, start=2):  # start=2 เพราะแถว
 
 print(f"\nพบข้อมูลที่ตรงกับวันนี้: {len(matched_rows)} แถว")
 
-# ====== บันทึกลง result.csv ======
 with open(OUTPUT_FILE, "w", newline="", encoding="utf-8-sig") as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(header)          # เขียนหัวตาราง
-    writer.writerows(matched_rows)   # เขียนแถวที่ตรงกับวันนี้
+    
+    # เขียนหัวตาราง เฉพาะคอลัมน์ B และ C
+    writer.writerow([header[1], header[2]])
+    
+    # เขียนเฉพาะคอลัมน์ B (index 1) และ C (index 2)
+    for row in matched_rows:
+        writer.writerow([row[1], row[2]])
 
 print(f"บันทึกข้อมูลลงไฟล์ '{OUTPUT_FILE}' เรียบร้อยแล้ว ✅")
+# ====== บันทึกลง result.csv ======
+#with open(OUTPUT_FILE, "w", newline="", encoding="utf-8-sig") as csvfile:
+ #   writer = csv.writer(csvfile)
+  #  writer.writerow(header)          # เขียนหัวตาราง
+   # writer.writerows(matched_rows)   # เขียนแถวที่ตรงกับวันนี้
+#
+#print(f"บันทึกข้อมูลลงไฟล์ '{OUTPUT_FILE}' เรียบร้อยแล้ว ✅")
