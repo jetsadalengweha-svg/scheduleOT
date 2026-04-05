@@ -2,13 +2,13 @@ name: Daily Expired Product Job
 
 on:
   schedule:
-    - cron1: '00 0 * * *'  # 7:00 น. ไทย
+    - cron: '00 0 * * *'  # 7:00 น. ไทย
   workflow_dispatch:
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
-
+    if: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
