@@ -62,10 +62,35 @@ DATE_FORMATS = [
     "%d/%m/%y",
     "%Y/%m/%d",
 ]
+# ====== ตารางแปลงชื่อเดือนภาษาไทย ======
+THAI_MONTHS = {
+    "มกราคม": 1,  "กุมภาพันธ์": 2, "มีนาคม": 3,
+    "เมษายน": 4,  "พฤษภาคม": 5,   "มิถุนายน": 6,
+    "กรกฎาคม": 7, "สิงหาคม": 8,   "กันยายน": 9,
+    "ตุลาคม": 10, "พฤศจิกายน": 11, "ธันวาคม": 12
+}
 
 def parse_date(date_str):
-    """แปลงสตริงวันที่เป็น date object"""
+    """แปลงสตริงวันที่เป็น date object รองรับทั้งภาษาไทย (พ.ศ.) และรูปแบบทั่วไป"""
     date_str = date_str.strip()
+
+    # ---- รูปแบบภาษาไทย เช่น "5 เมษายน 2569" ----
+    match = re.match(r"(\d{1,2})\s+(\S+)\s+(\d{4})", date_str)
+    if match:
+        day   = int(match.group(1))
+        month_name = match.group(2)
+        year_be = int(match.group(3))
+
+        month = THAI_MONTHS.get(month_name)
+        if month:
+            year_ce = year_be - 543   # แปลง พ.ศ. → ค.ศ.
+            try:
+                return datetime(year_ce, month, day).date()
+            except ValueError:
+                return None
+
+    # ---- รูปแบบทั่วไป (fallback) ----
+
     for fmt in DATE_FORMATS:
         try:
             return datetime.strptime(date_str, fmt).date()
