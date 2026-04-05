@@ -3,6 +3,8 @@ import csv
 import re
 from datetime import datetime
 from io import StringIO
+import os
+
 spreadsheet_id = os.environ.get('SPREADSHEET_ID_PRODUCTEXPIRED')
 context = ssl._create_unverified_context()
 # เอา ID จาก URL ของ Google Sheet
