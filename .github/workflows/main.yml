@@ -8,7 +8,8 @@ on:
 jobs:
   run-script:
     runs-on: ubuntu-latest
-    if: bFound
+    outputs:
+      bFound: ${{ steps.check.outputs.bFound }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,10 +22,27 @@ jobs:
         run: pip install pandas gspread google-auth
 
       - name: Run y.py
+        id: check
         env:
           SPREADSHEET_ID_PRODUCTEXPIRED: ${{ secrets.SPREADSHEET_ID_PRODUCTEXPIRED}}
         run: python y.py
-        
+
+      - name: Upload result
+        uses: actions/upload-artifact@v3
+        with:
+          name: result
+          path: result.csv
+
+  send-email:
+    needs: run-script
+    if: needs.run-script.outputs.bFound == 'true'   # ← เช็คตรงนี้
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download result
+        uses: actions/download-artifact@v3
+        with:
+          name: result
+
       - name: Send email with attachment
         uses: dawidd6/action-send-mail@v3
         with:
@@ -32,7 +50,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Expired Product Today  - ${{ github.run_number }}"
+          subject: "Expired Product Today - ${{ github.run_number }}"
           to: jlengweha@gmail.com
           from: ${{ secrets.MAIL_USERNAME }}
           body: "Please find attached the Expired Product Today output files"
