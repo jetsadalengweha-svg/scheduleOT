@@ -14,7 +14,7 @@ SHEET_URL = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet
 # ====== ตั้งค่า ======
 # วาง URL ของ Google Sheet ที่นี่ (ลิงค์ปกติที่ได้จากการแชร์)
 OUTPUT_FILE = "result.csv"
-
+bFound = false
 # ====== แปลง URL เป็น CSV Export URL ======
 def get_csv_export_url(sheet_url, sheet_name):
     """ดึง Spreadsheet ID จาก URL แล้วสร้าง CSV export link"""
@@ -120,6 +120,7 @@ for i, row in enumerate(data_rows, start=2):  # start=2 เพราะแถว
 
     if row_date == today:
         matched_rows.append(row)
+        bFound = true
         print(f"  ✅ แถว {i}: คอลัมน์ B = '{col_b}' | วันที่ = '{col_g}'")
 
 print(f"\nพบข้อมูลที่ตรงกับวันนี้: {len(matched_rows)} แถว")
