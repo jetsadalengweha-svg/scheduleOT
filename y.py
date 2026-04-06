@@ -120,7 +120,7 @@ for i, row in enumerate(data_rows, start=2):  # start=2 เพราะแถว
 
     if row_date == today:
         matched_rows.append(row)
-        found = true
+        found = True
         print(f"  ✅ แถว {i}: คอลัมน์ B = '{col_b}' | วันที่ = '{col_g}'")
 
 print(f"\nพบข้อมูลที่ตรงกับวันนี้: {len(matched_rows)} แถว")
