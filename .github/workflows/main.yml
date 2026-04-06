@@ -8,7 +8,7 @@ on:
 jobs:
   run-script:
     runs-on: ubuntu-latest
-    if: true
+    if: bFound
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
