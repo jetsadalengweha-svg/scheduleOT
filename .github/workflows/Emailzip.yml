@@ -1,7 +1,7 @@
 name: Schedule OT Job
 on:
   schedule:
-    - cron: '00 8 * * *'
+    - cron: '00 5 8 * *'
   workflow_dispatch:
 jobs:
   run-script:
