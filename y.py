@@ -14,7 +14,7 @@ SHEET_URL = 'https://docs.google.com/spreadsheets/d/{}/gviz/tq?tqx=out:csv&sheet
 # ====== ตั้งค่า ======
 # วาง URL ของ Google Sheet ที่นี่ (ลิงค์ปกติที่ได้จากการแชร์)
 OUTPUT_FILE = "result.csv"
-found = false
+found = False
 # ====== แปลง URL เป็น CSV Export URL ======
 def get_csv_export_url(sheet_url, sheet_name):
     """ดึง Spreadsheet ID จาก URL แล้วสร้าง CSV export link"""
