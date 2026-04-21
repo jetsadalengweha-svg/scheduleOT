@@ -121,7 +121,7 @@ for i, row in enumerate(data_rows, start=2):  # start=2 เพราะแถว
         print(f"  ⚠️  แถว {i}: แปลงวันที่ไม่ได้ → '{col_g}'")
         continue
 
-    if tomorrow < row_date < next_week:   
+    if today < row_date < next_week:   
         matched_rows.append(row)
         found = True
         print(f"  ✅ แถว {i}: คอลัมน์ B = '{col_b}' | วันที่ = '{col_g}'")
