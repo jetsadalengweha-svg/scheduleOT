@@ -1,7 +1,7 @@
 import requests
 import csv
 import re
-from datetime import datetime
+from datetime import datetime,timedelta
 from io import StringIO
 import os
 import ssl
@@ -52,7 +52,10 @@ print(f"คอลัมน์ที่พบ: {header}")
 # ====== วันที่วันนี้ ======
 today = datetime.today().date()
 print(f"วันที่วันนี้: {today.strftime('%Y-%m-%d')}")
-
+yesterday  = today - timedelta(days=1)   # เมื่อวาน
+tomorrow   = today + timedelta(days=1)   # พรุ่งนี้
+next_week  = today + timedelta(weeks=1)  # อีก 7 วัน
+next_month = today + timedelta(days=30)  # อีก 30 วัน
 # รูปแบบวันที่ที่อาจพบในคอลัมน์ G
 DATE_FORMATS = [
     "%Y-%m-%d",
@@ -118,7 +121,8 @@ for i, row in enumerate(data_rows, start=2):  # start=2 เพราะแถว
         print(f"  ⚠️  แถว {i}: แปลงวันที่ไม่ได้ → '{col_g}'")
         continue
 
-    if row_date == today:
+    #if row_date == today:
+     if tomorrow < row_date < next_week:   
         matched_rows.append(row)
         found = True
         print(f"  ✅ แถว {i}: คอลัมน์ B = '{col_b}' | วันที่ = '{col_g}'")
