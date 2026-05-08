@@ -53,7 +53,7 @@ def processmatching(filename, filename2, outputfilename):
        cursor.execute( sqlstatementF )
        results = cursor.fetchall()
        
-       f = open( outputfilename, 'w')
+       f = open( outputfilename, 'w', encoding='utf-8-sig')
        for row in results:
                if row[1] == row[4]:
                        f.write ('%s,%s,%s,%s,%s,%s,%s,%s\n' % (row[0], row[1],'','', row[2],'', row[3], '') )
@@ -69,7 +69,7 @@ def datainput_cvs_format(url,csvfile):
        rows = list(csv.reader(data.splitlines()))
        header = rows[0]
        data_rows = rows[1:]
-       f = open(csvfile, 'w' )
+       f = open(csvfile, 'w', encoding='utf-8-sig' )
        for row in data_rows:
            name = row[1]
            for i in range(4, len(header)):
