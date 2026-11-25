@@ -1,3 +1,35 @@
+board = [
+    list("53..7...."),
+    list("6..195..."),
+    list(".98....6."),
+    list("8...6...3"),
+    list("4..8.3..1"),
+    list("7...2...6"),
+    list(".6....28."),
+    list("...419..5"),
+    list("....8..79"),
+]
+
+Solution().solveSudoku(board)
+
+for row in board:
+    print(" ".join(row))
+
+# ตรวจว่าผลลัพธ์ถูกต้อง
+full = set("123456789")
+ok = (
+    all(set(r) == full for r in board)
+    and all({board[r][c] for r in range(9)} == full for c in range(9))
+    and all(
+        {board[br + i][bc + j] for i in range(3) for j in range(3)} == full
+        for br in (0, 3, 6) for bc in (0, 3, 6)
+    )
+)
+print("ถูกต้อง" if ok else "ผิด")
+
+
+
+
 class Solution:
     def solveSudoku(self, board: List[List[str]]) -> None:
         self.solve(board)
