@@ -1,0 +1,33 @@
+name: Sudoku Solution
+
+on:
+  schedule:
+    - cron: '00 0 7 10 *'  # 7:00 น. ไทย
+  workflow_dispatch:
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    outputs:
+      bFound: ${{ steps.check.outputs.bFound }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas gspread google-auth
+
+      - name: Run sudoku.py
+        run: python sudoku.py
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: result
+          path: result.csv
+
